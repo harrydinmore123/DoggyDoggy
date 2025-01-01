@@ -1,74 +1,225 @@
-import { Image, StyleSheet, Platform } from 'react-native';
-
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import React, { useState, useRef } from 'react';
+import { Button, Text, View, StyleSheet, Dimensions, TextInput, FlatList, TouchableOpacity, Modal, Animated, Platform, Image } from 'react-native';
+import { Calendar } from 'react-native-calendars';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { DrawerActions } from '@react-navigation/native';
+
 
 export default function HomeScreen() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [clients, setClients] = useState([
+    { id: '1', name: 'Client 1' },
+    { id: '2', name: 'Client 2' },
+    { id: '3', name: 'Client 3' },
+    { id: '4', name: 'Client 4' },
+    { id: '5', name: 'Client 5' },
+    { id: '6', name: 'Client 6' },
+    { id: '7', name: 'Client 7' },
+    { id: '8', name: 'Client 8' },
+    { id: '9', name: 'Client 9' },
+    { id: '10', name: 'Client 10' },
+  ]);
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const slideAnim = useRef(new Animated.Value(Dimensions.get('window').height)).current;
+
+  const handleSearch = () => {
+    console.log('Search query:', searchQuery);
+  };
+
+  // const handleAddClient = () => {
+  //   navigation.navigate('ClientDetails', { createMode: true });
+  // };
+
+  const handleNewAppointment = () => {
+    setIsModalVisible(true);
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  // const handleCancel = () => {
+  //   setIsModalVisible(false);
+  //   navigation.navigate('Home');
+  // };
+
+  // const handleNext = () => {
+  //   setIsModalVisible(false);
+  //   navigation.navigate('AddBooking', { date: selectedDate.toISOString().split('T')[0], fromHome: true });
+  // };
+
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirm = (event: any, date?: Date) => {
+    if (date) {
+      setSelectedDate(date);
+    }
+    hideDatePicker();
+  };
+
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    // <ParallaxScrollView
+    //   headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+    //   headerImage={
+    //     <Image
+    //       source={require('@/assets/images/partial-react-logo.png')}
+    //       style={styles.reactLogo}
+    //     />
+    //   }>
+       <ThemedView style={styles.container}>
+      <TouchableOpacity style={styles.menuButton} /*onPress={() => navigation.dispatch(DrawerActions.openDrawer())}*/>
+        <Text style={styles.menuButtonText}>☰</Text>
+      </TouchableOpacity>
+      <View style={styles.buttonContainer}>
+        <Button title="New Appointment" onPress={handleNewAppointment} />
+        <Button title="New Client" /*onPress={handleAddClient}*/ />
+      </View>
+      <Calendar
+        style={styles.calendar}
+        // onDayPress={(day) => {
+        //   navigation.navigate('Day', { date: day.dateString });
+        // }}
+        markedDates={{
+          '2023-10-16': { selected: true, marked: true, selectedColor: 'blue' },
+          '2023-10-17': { marked: true },
+          '2023-10-18': { marked: true, dotColor: 'red', activeOpacity: 0 },
+          '2023-10-19': { disabled: true, disableTouchEvent: true },
+        }}
+      />
+      <View style={styles.searchListContainer}>
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search clients..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          <Button title="Enter" onPress={handleSearch} />
+        </View>
+        <FlatList
+          data={clients}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            // <TouchableOpacity onPress={() => navigation.navigate('ClientDetails', { clientId: item.id })}>
+            <TouchableOpacity onPress={(item) => (item)}>
+              <View style={styles.clientItem}>
+                <Text>{item.name}</Text>
+              </View>
+            </TouchableOpacity>
+          )
+        }
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      </View>
+      {isModalVisible && (
+        <View style={styles.modalBackground}>
+          <Animated.View style={[styles.modalContainer, { transform: [{ translateY: slideAnim }] }]}>
+            <Text style={styles.modalTitle}>Select Appointment Date</Text>
+            <Button title="Show Date Picker" onPress={showDatePicker} />
+            {isDatePickerVisible && (
+              <DateTimePicker
+                value={selectedDate}
+                mode="date"
+                display="default"
+                onChange={handleConfirm}
+              />
+            )}
+            <View style={styles.modalButtonContainer}>
+              <Button title="Cancel" /*onPress={handleCancel}*/ />
+              <Button title="Next" /*onPress={handleNext}*/ />
+            </View>
+          </Animated.View>
+        </View>
+      )}
+    </ThemedView>
+    // </ParallaxScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    padding: 16,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  calendar: {
+    width: Dimensions.get('window').width - 32,
+    marginBottom: 16,
+  },
+  searchListContainer: {
+    flex: 1,
+    width: '100%',
+  },
+  searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    marginBottom: 16,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  searchInput: {
+    flex: 1,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    padding: 8,
+    marginRight: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
+  clientItem: {
+    padding: 16,
+    borderBottomColor: '#ccc',
+    borderBottomWidth: 1,
+    width: '100%',
+  },
+  menuButton: {
     position: 'absolute',
+    top: 40,
+    left: 16,
+    zIndex: 1,
+  },
+  menuButtonText: {
+    fontSize: 24,
+  },
+  modalBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: 300,
+    padding: 20,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    marginBottom: 20,
+  },
+  modalButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginTop: 20,
   },
 });
