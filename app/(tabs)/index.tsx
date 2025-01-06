@@ -1,15 +1,13 @@
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 import React, { useState, useRef } from 'react';
-import { Button, Text, View, StyleSheet, Dimensions, TextInput, FlatList, TouchableOpacity, Modal, Animated, Platform, Image } from 'react-native';
+import { Button, Text, View, StyleSheet, Dimensions, TextInput, FlatList, TouchableOpacity, Modal, Animated, Platform } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { DrawerActions } from '@react-navigation/native';
+import { DrawerActions, NavigationProp, useNavigation } from '@react-navigation/native';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
 
-
-export default function HomeScreen() {
+const HomeScreen = () => {
+  const navigation = useNavigation<NavigationProp<any>>();
   const [searchQuery, setSearchQuery] = useState('');
   const [clients, setClients] = useState([
     { id: '1', name: 'Client 1' },
@@ -33,9 +31,9 @@ export default function HomeScreen() {
     console.log('Search query:', searchQuery);
   };
 
-  // const handleAddClient = () => {
-  //   navigation.navigate('ClientDetails', { createMode: true });
-  // };
+  const handleAddClient = () => {
+    navigation.navigate('bigboys', { createMode: true });
+  };
 
   const handleNewAppointment = () => {
     setIsModalVisible(true);
@@ -46,15 +44,15 @@ export default function HomeScreen() {
     }).start();
   };
 
-  // const handleCancel = () => {
-  //   setIsModalVisible(false);
-  //   navigation.navigate('Home');
-  // };
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    navigation.navigate('Home');
+  };
 
-  // const handleNext = () => {
-  //   setIsModalVisible(false);
-  //   navigation.navigate('AddBooking', { date: selectedDate.toISOString().split('T')[0], fromHome: true });
-  // };
+  const handleNext = () => {
+    setIsModalVisible(false);
+    navigation.navigate('AddBooking', { date: selectedDate.toISOString().split('T')[0], fromHome: true });
+  };
 
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -64,36 +62,26 @@ export default function HomeScreen() {
     setDatePickerVisibility(false);
   };
 
-  const handleConfirm = (event: any, date?: Date) => {
-    if (date) {
-      setSelectedDate(date);
-    }
+  const handleConfirm = (event: any, date: Date) => {
+    const selected = date || selectedDate;
+    setSelectedDate(selected);
     hideDatePicker();
   };
 
-
   return (
-    // <ParallaxScrollView
-    //   headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-    //   headerImage={
-    //     <Image
-    //       source={require('@/assets/images/partial-react-logo.png')}
-    //       style={styles.reactLogo}
-    //     />
-    //   }>
-       <ThemedView style={styles.container}>
-      <TouchableOpacity style={styles.menuButton} /*onPress={() => navigation.dispatch(DrawerActions.openDrawer())}*/>
+    <ThemedView style={styles.container}>
+      <TouchableOpacity style={styles.menuButton} onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
         <Text style={styles.menuButtonText}>☰</Text>
       </TouchableOpacity>
       <View style={styles.buttonContainer}>
         <Button title="New Appointment" onPress={handleNewAppointment} />
-        <Button title="New Client" /*onPress={handleAddClient}*/ />
+        <Button title="New Client" onPress={handleAddClient} />
       </View>
       <Calendar
         style={styles.calendar}
-        // onDayPress={(day) => {
-        //   navigation.navigate('Day', { date: day.dateString });
-        // }}
+        onDayPress={(day: { dateString: any; }) => {
+          navigation.navigate('Day', { date: day.dateString });
+        }}
         markedDates={{
           '2023-10-16': { selected: true, marked: true, selectedColor: 'blue' },
           '2023-10-17': { marked: true },
@@ -115,40 +103,47 @@ export default function HomeScreen() {
           data={clients}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            // <TouchableOpacity onPress={() => navigation.navigate('ClientDetails', { clientId: item.id })}>
-            <TouchableOpacity onPress={(item) => (item)}>
+            <TouchableOpacity onPress={() => navigation.navigate('ClientDetails', { clientId: item.id })}>
               <View style={styles.clientItem}>
                 <Text>{item.name}</Text>
               </View>
             </TouchableOpacity>
-          )
-        }
+          )}
         />
       </View>
       {isModalVisible && (
         <View style={styles.modalBackground}>
           <Animated.View style={[styles.modalContainer, { transform: [{ translateY: slideAnim }] }]}>
             <Text style={styles.modalTitle}>Select Appointment Date</Text>
-            <Button title="Show Date Picker" onPress={showDatePicker} />
-            {isDatePickerVisible && (
-              <DateTimePicker
-                value={selectedDate}
-                mode="date"
-                display="default"
-                onChange={handleConfirm}
-              />
+            {Platform.OS === 'web' ? (
+              // <DatePicker
+              //   selected={selectedDate}
+              //   onChange={(date: React.SetStateAction<Date>) => date && setSelectedDate(date)}
+              // />
+              <input>hi</input>
+            ) : (
+              <>
+                <Button title="Show Date Picker" onPress={showDatePicker} />
+                {/* {isDatePickerVisible && (
+                  <DateTimePicker
+                    value={selectedDate}
+                    mode="date"
+                    display="default"
+                    onChange={handleConfirm}
+                  />
+                )} */}
+              </>
             )}
             <View style={styles.modalButtonContainer}>
-              <Button title="Cancel" /*onPress={handleCancel}*/ />
-              <Button title="Next" /*onPress={handleNext}*/ />
+              <Button title="Cancel" onPress={handleCancel} />
+              <Button title="Next" onPress={handleNext} />
             </View>
           </Animated.View>
         </View>
       )}
     </ThemedView>
-    // </ParallaxScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -223,3 +218,5 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 });
+
+export default HomeScreen;
