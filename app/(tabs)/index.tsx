@@ -32,7 +32,7 @@ const HomeScreen = () => {
   };
 
   const handleAddClient = () => {
-    navigation.navigate('bigboys', { createMode: true });
+    navigation.navigate('ClientDetailsScreen', { createMode: true });
   };
 
   const handleNewAppointment = () => {
@@ -51,7 +51,7 @@ const HomeScreen = () => {
 
   const handleNext = () => {
     setIsModalVisible(false);
-    navigation.navigate('AddBooking', { date: selectedDate.toISOString().split('T')[0], fromHome: true });
+    navigation.navigate('AddBookingScreen', { date: selectedDate.toISOString().split('T')[0], fromHome: true });
   };
 
   const showDatePicker = () => {
@@ -71,7 +71,7 @@ const HomeScreen = () => {
   return (
     <ThemedView style={styles.container}>
       <TouchableOpacity style={styles.menuButton} onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
-        <Text style={styles.menuButtonText}>☰</Text>
+        <Text style={styles.menuButtonText}></Text>
       </TouchableOpacity>
       <View style={styles.buttonContainer}>
         <Button title="New Appointment" onPress={handleNewAppointment} />
@@ -80,7 +80,7 @@ const HomeScreen = () => {
       <Calendar
         style={styles.calendar}
         onDayPress={(day: { dateString: any; }) => {
-          navigation.navigate('Day', { date: day.dateString });
+          navigation.navigate('DayScreen', { date: day.dateString });
         }}
         markedDates={{
           '2023-10-16': { selected: true, marked: true, selectedColor: 'blue' },
@@ -103,7 +103,7 @@ const HomeScreen = () => {
           data={clients}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => navigation.navigate('ClientDetails', { clientId: item.id })}>
+            <TouchableOpacity onPress={() => navigation.navigate('ClientDetailsScreen', { clientId: item.id })}>
               <View style={styles.clientItem}>
                 <Text>{item.name}</Text>
               </View>
